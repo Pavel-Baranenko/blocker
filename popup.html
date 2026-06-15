@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            width: 500px;
+            padding: 15px;
+            font-family: system-ui;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .rule-item {
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .rule-url {
+            font-weight: bold;
+            word-break: break-all;
+        }
+
+        .rule-method {
+            color: #666;
+            font-size: 12px;
+        }
+
+        button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        .enabled {
+            background: #e8f5e9;
+        }
+
+        .disabled {
+            background: #ffebee;
+        }
+
+        .mock-editor {
+            display: none;
+            margin-top: 10px;
+        }
+
+        textarea {
+            font-family: monospace;
+            height: 100px;
+        }
+
+        h3 {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Управление сетевыми запросами</h2>
+
+    <div class="form-group">
+        <label>URL для блокировки:</label>
+        <input type="text" id="ruleUrl" placeholder="*://*.google-analytics.com/*">
+    </div>
+
+    <div class="form-group">
+        <label>Метод запроса:</label>
+        <select id="ruleMethod">
+            <option>GET</option>
+            <option>POST</option>
+            <option>PUT</option>
+            <option>DELETE</option>
+            <option>PATCH</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Действие:</label>
+        <select id="ruleAction">
+            <option value="block">Блокировать</option>
+        </select>
+    </div>
+
+    <button id="addRuleBtn">Добавить правило</button>
+
+    <h3>Список правил (<span id="rulesCount">0</span>)</h3>
+    <div id="rulesList"></div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

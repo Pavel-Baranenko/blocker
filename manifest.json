@@ -1,31 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "URL Blocker",
+  "name": "Управление сетевыми запросами",
   "version": "1.0",
-  "description": "Блокирует запросы по пользовательскому списку URL",
-  
-  "action": {
-    "default_popup": "popup.html",
-    "default_title": "Blocker"
-  },
-  
-  "background": {
-    "service_worker": "service-worker.js"
-  },
-  
-  "content_scripts": [
-    {
-      "matches": ["https://*.google.com/*"],
-      "js": ["content.js"]
-    }
-  ],
-    
-  "host_permissions": [
-    "<all_urls>"
-  ],
-  
+  "description": "Блокировка и подмена сетевых запросов",
   "permissions": [
     "declarativeNetRequest",
     "storage"
-  ]
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Управление запросами"
+  }
 }
