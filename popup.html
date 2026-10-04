@@ -1,110 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <style>
-        body {
-            width: 500px;
-            padding: 15px;
-            font-family: system-ui;
-        }
-
-        .form-group {
-            margin-bottom: 10px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            padding: 5px;
-            box-sizing: border-box;
-        }
-
-        .rule-item {
-            border: 1px solid #ccc;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .rule-url {
-            font-weight: bold;
-            word-break: break-all;
-        }
-
-        .rule-method {
-            color: #666;
-            font-size: 12px;
-        }
-
-        button {
-            padding: 5px 10px;
-            margin-right: 5px;
-            cursor: pointer;
-        }
-
-        .enabled {
-            background: #e8f5e9;
-        }
-
-        .disabled {
-            background: #ffebee;
-        }
-
-        .mock-editor {
-            display: none;
-            margin-top: 10px;
-        }
-
-        textarea {
-            font-family: monospace;
-            height: 100px;
-        }
-
-        h3 {
-            margin-top: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="popup.css">
 </head>
 
 <body>
-    <h2>Управление сетевыми запросами</h2>
+    <div class="popup">
+        <div class="popup__top">
+            <h2>RULES</h2>
+            <button type="button" id="add-rule" class="btn btn--primary btn--icon" title="Добавить правило" aria-label="Добавить правило" disabled>
+                <svg width="6" height="6" viewBox="0 0 6 6" fill="none">
+                    <path
+                        d="M2.55859 5.27832C2.89551 5.27832 3.10547 5.04883 3.10547 4.69727V3.18359H4.53613C4.88281 3.18359 5.10742 2.97363 5.10742 2.6416C5.10742 2.30957 4.88281 2.09961 4.54102 2.09961H3.10547V0.581055C3.10547 0.229492 2.89551 0 2.55859 0C2.2168 0 2.00684 0.229492 2.00684 0.581055V2.09961H0.571289C0.224609 2.09961 0 2.30957 0 2.6416C0 2.97363 0.224609 3.18359 0.571289 3.18359H2.00684V4.69238C2.00684 5.04883 2.2168 5.27832 2.55859 5.27832Z"
+                        fill="#F4F4F7" />
+                </svg>
+            </button>
+        </div>
+        <p id="popup-error" role="alert" hidden></p>
+        <div class="popup__content">
+            <div class="rules">
+                <template id="rule-template">
+                <div class="rule">
+                    <span class="rule__name"></span>
+                    <button type="button" class="rule__status" data-action="toggle" role="switch" aria-checked="false"></button>
+                    <div class="rule__actions">
+                        <button type="button" data-action="delete" title="Удалить правило" aria-label="Удалить правило">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M16.0644 8.31483C16.0644 8.21171 15.98 8.12733 15.8769 8.12733L14.3301 8.13437L12.0004 10.9117L9.67304 8.13671L8.12382 8.12968C8.0207 8.12968 7.93633 8.21171 7.93633 8.31718C7.93633 8.36171 7.95273 8.4039 7.98086 8.43905L11.0301 12.0719L7.98086 15.7023C7.95254 15.7367 7.93682 15.7797 7.93633 15.8242C7.93633 15.9273 8.0207 16.0117 8.12382 16.0117L9.67304 16.0047L12.0004 13.2273L14.3277 16.0023L15.8746 16.0094C15.9777 16.0094 16.0621 15.9273 16.0621 15.8219C16.0621 15.7773 16.0457 15.7351 16.0175 15.7L12.973 12.0695L16.0222 8.43671C16.0504 8.4039 16.0644 8.35937 16.0644 8.31483Z"
+                                    fill="red" fill-opacity="0.45" />
+                                <path
+                                    d="M12 1.52342C6.20156 1.52342 1.5 6.22499 1.5 12.0234C1.5 17.8219 6.20156 22.5234 12 22.5234C17.7984 22.5234 22.5 17.8219 22.5 12.0234C22.5 6.22499 17.7984 1.52342 12 1.52342ZM12 20.7422C7.18594 20.7422 3.28125 16.8375 3.28125 12.0234C3.28125 7.20936 7.18594 3.30467 12 3.30467C16.8141 3.30467 20.7188 7.20936 20.7188 12.0234C20.7188 16.8375 16.8141 20.7422 12 20.7422Z"
+                                    fill="red" fill-opacity="0.45" />
+                            </svg>
+                        </button>
+                        <button type="button" data-action="edit" title="Редактировать правило" aria-label="Редактировать правило">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M6.03984 17.625C6.08672 17.625 6.13359 17.6203 6.18047 17.6133L10.1227 16.9219C10.1695 16.9125 10.2141 16.8914 10.2469 16.8563L20.182 6.92109C20.2038 6.89941 20.221 6.87366 20.2328 6.8453C20.2445 6.81695 20.2506 6.78656 20.2506 6.75586C20.2506 6.72516 20.2445 6.69477 20.2328 6.66642C20.221 6.63806 20.2038 6.61231 20.182 6.59063L16.2867 2.69297C16.2422 2.64844 16.1836 2.625 16.1203 2.625C16.057 2.625 15.9984 2.64844 15.9539 2.69297L6.01875 12.6281C5.98359 12.6633 5.9625 12.7055 5.95312 12.7523L5.26172 16.6945C5.23892 16.8201 5.24707 16.9493 5.28545 17.071C5.32384 17.1927 5.39132 17.3032 5.48203 17.393C5.63672 17.543 5.83125 17.625 6.03984 17.625ZM7.61953 13.5375L16.1203 5.03906L17.8383 6.75703L9.3375 15.2555L7.25391 15.6234L7.61953 13.5375ZM20.625 19.5938H3.375C2.96016 19.5938 2.625 19.9289 2.625 20.3438V21.1875C2.625 21.2906 2.70937 21.375 2.8125 21.375H21.1875C21.2906 21.375 21.375 21.2906 21.375 21.1875V20.3438C21.375 19.9289 21.0398 19.5938 20.625 19.5938Z"
+                                    fill="white" fill-opacity="0.45" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                </template>
+            </div>
+            <form class="rule__editor" hidden>
+                <div class="edit__box">
+                    <span class="edit__text">Active</span>
+                    <label class="switch">
+                        <input type="checkbox" id="rule-status" name="rule-status" aria-label="Активность правила">
+                    </label>
+                </div>
+                <div class="edit__box">
+                    <label for="rule-name" class="edit__text">Name</label>
+                    <input type="text" id="rule-name" name="rule-name" class="text-input" required>
+                </div>
 
-    <div class="form-group">
-        <label>URL для блокировки:</label>
-        <input type="text" id="ruleUrl" placeholder="*://*.google-analytics.com/*">
+                <div class="edit__box">
+                    <span class="edit__text">Req Type</span>
+                    <div class="dropdown" id="ruleMethodDropdown">
+                        <button type="button" class="dropdown__trigger" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="dropdown__value">GET</span>
+                            <svg class="dropdown__arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+                                <path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+
+                        <ul class="dropdown__menu" role="listbox" tabindex="-1">
+                            <li class="dropdown__option is-selected" role="option" data-value="GET">GET</li>
+                            <li class="dropdown__option" role="option" data-value="POST">POST</li>
+                            <li class="dropdown__option" role="option" data-value="PUT">PUT</li>
+                            <li class="dropdown__option" role="option" data-value="DELETE">DELETE</li>
+                            <li class="dropdown__option" role="option" data-value="PATCH">PATCH</li>
+                            <li class="dropdown__option" role="option" data-value="HEAD">HEAD</li>
+                            <li class="dropdown__option" role="option" data-value="OPTIONS">OPTIONS</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="edit__box">
+                    <label for="rule-url" class="edit__text">URL</label>
+                    <textarea id="rule-url" name="rule-url" class="text-input" required></textarea>
+                </div>
+                <div class="edit__box edit__box--actions">
+                    <button type="button" id="delete-rule" class="btn btn--danger">Удалить</button>
+                    <button type="button" id="cancel-edit" class="btn">Отмена</button>
+                    <button type="submit" class="btn btn--primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label>Метод запроса:</label>
-        <select id="ruleMethod">
-            <option>GET</option>
-            <option>POST</option>
-            <option>PUT</option>
-            <option>DELETE</option>
-            <option>PATCH</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Действие:</label>
-        <select id="ruleAction">
-            <option value="block">Блокировать</option>
-        </select>
-    </div>
-
-    <button id="addRuleBtn">Добавить правило</button>
-
-    <h3>Список правил (<span id="rulesCount">0</span>)</h3>
-    <div id="rulesList"></div>
 
     <script src="popup.js"></script>
 </body>

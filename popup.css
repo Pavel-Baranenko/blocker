@@ -1,0 +1,417 @@
+html,
+body {
+    background: transparent !important;
+    width: 280px;
+    margin: 0;
+}
+
+.popup {
+    color: #FFFFFF;
+    min-height: 330px;
+    background: #2c2c2c;
+    width: 100%;
+    padding: 12px;
+    display: flex;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    flex-direction: column;
+    box-sizing: border-box;
+}
+.popup__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+.popup__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.rules button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+}
+
+.rules button svg {
+    max-width: 100%;
+}
+
+.rule {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+  .rules {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .rule__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+.rule__actions {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+  .rules .rule__status {
+    margin-left: 10px;
+    width: 12px;
+    height: 12px;
+    padding: 0;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #888;
+  }
+
+  .rules .rule__status[aria-checked="true"] {
+    background: rgb(0, 255, 13);
+  }
+
+  .rules button:focus-visible {
+    outline: 2px solid #4096FF;
+    outline-offset: 2px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 35px;
+    height: 19px;
+    cursor: pointer;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+/* Фон переключателя */
+.switch::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: #ccc;
+    border-radius: 999px;
+    transition: background-color 0.3s ease;
+}
+
+/* Кружок */
+.switch::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 15px;
+    height: 15px;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+/* Активное состояние */
+.switch:has(input:checked)::before {
+    background-color: #4096FF;
+}
+
+.switch:has(input:checked)::after {
+    transform: translateX(16px);
+}
+
+.switch:has(input:focus-visible)::before {
+    box-shadow: 0 0 0 2px rgba(64, 150, 255, 0.3);
+}
+
+.edit__box {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.edit__text {
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.rule__editor {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 12px;
+}
+
+
+
+.text-input {
+    width: 100%;
+    max-width: 210px;
+    height: 24px;
+    padding: 0 12px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #333;
+    background-color: #fff;
+    border: 1.5px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+textarea.text-input {
+    padding: 4px 12px;
+    height: auto;
+    resize: vertical;
+}
+
+.text-input:hover:not(:focus) {
+    border-color: #b3b3b3;
+}
+
+.text-input:focus {
+    border-color: #4096FF;
+    box-shadow: 0 0 0 3px rgba(64, 150, 255, 0.15);
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 140px;
+  font-family: inherit;
+  font-size: 12px;
+  color: #333;
+}
+
+/* Триггер (закрытое состояние) */
+.dropdown__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  height: 24px;              /* высота закрытого вида */
+  padding: 0 8px;
+  font: inherit;
+  color: inherit;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.dropdown__trigger:hover {
+  border-color: #b3b3b3;
+}
+
+.dropdown__trigger:focus-visible,
+.dropdown.is-open .dropdown__trigger {
+  border-color: #4096FF;
+  box-shadow: 0 0 0 3px rgba(64, 150, 255, 0.15);
+}
+
+.dropdown__arrow {
+  flex-shrink: 0;
+  color: #888;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.dropdown.is-open .dropdown__arrow {
+  transform: rotate(180deg);
+  color: #4096FF;
+}
+
+/* Меню */
+.dropdown__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  box-sizing: border-box;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dropdown.is-open .dropdown__menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Опции */
+.dropdown__option {
+  display: flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  font-size: 12px;
+  color: #333;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+  user-select: none;
+}
+
+.dropdown__option:hover,
+.dropdown__option.is-active {
+  background-color: rgba(64, 150, 255, 0.1);
+  color: #4096FF;
+}
+
+.dropdown__option.is-selected {
+  background-color: #4096FF;
+  color: #fff;
+}
+
+.dropdown__option.is-selected.is-active {
+  background-color: #3385e8;
+  color: #fff;
+}
+
+/* Скроллбар (опционально) */
+.dropdown__menu::-webkit-scrollbar { width: 6px; }
+.dropdown__menu::-webkit-scrollbar-thumb {
+  background-color: #d0d0d0;
+  border-radius: 3px;
+}
+
+/* База */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 24px;                    /* как у dropdown */
+  padding: 0 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  color: #333;
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.08s ease;
+  box-sizing: border-box;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(64, 150, 255, 0.2);
+}
+
+/* Иконки внутри */
+.btn svg {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+}
+
+/* ---------- Варианты ---------- */
+
+/* Primary — основной акцент */
+.btn--primary {
+  background-color: #4096FF;
+  color: #fff;
+  border-color: #4096FF;
+}
+.btn--primary:hover {
+  background-color: #2f86f6;
+  border-color: #2f86f6;
+}
+.btn--primary:active {
+  background-color: #2678e0;
+  border-color: #2678e0;
+}
+
+/* Danger — для удаления */
+.btn--danger {
+  background-color: #ff4d4f;
+  color: #fff;
+  border-color: #ff4d4f;
+}
+.btn--danger:hover {
+  background-color: #f43b3d;
+  border-color: #f43b3d;
+}
+.btn--danger:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.25);
+}
+
+/* Только иконка (квадратная) */
+.btn--icon {
+  width: 24px;
+  padding: 0;
+}
+
+.edit__box--actions{
+    margin-top: auto;
+  gap: 4px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#popup-error {
+  color: #ff8b8c;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  margin: 0 0 12px;
+}
