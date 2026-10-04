@@ -9,6 +9,9 @@
   const nameInput = document.getElementById('rule-name');
   const urlInput = document.getElementById('rule-url');
   const statusInput = document.getElementById('rule-status');
+  const replaceInput = document.getElementById('rule-replace-response');
+  const responseBox = document.getElementById('response-editor');
+  const responseInput = document.getElementById('rule-response');
   const root = document.getElementById('ruleMethodDropdown');
   const trigger = root.querySelector('.dropdown__trigger');
   const valueEl = root.querySelector('.dropdown__value');
@@ -86,6 +89,9 @@
     nameInput.value = rule?.name || '';
     urlInput.value = rule?.url || '';
     statusInput.checked = rule?.active ?? true;
+    replaceInput.checked = rule?.replaceResponse ?? false;
+    responseInput.value = rule?.responseBody ?? '{}';
+    syncResponseEditor();
     nameInput.setCustomValidity('');
     urlInput.setCustomValidity('');
     setMethod(rule?.method || 'GET');
@@ -94,6 +100,12 @@
     editor.hidden = false;
     addButton.hidden = true;
     nameInput.focus();
+  }
+
+  function syncResponseEditor() {
+    responseBox.hidden = !replaceInput.checked;
+    responseInput.required = replaceInput.checked;
+    responseInput.setCustomValidity('');
   }
 
   async function mutate(message, returnToList = true) {
@@ -199,6 +211,8 @@
 
   nameInput.addEventListener('input', () => nameInput.setCustomValidity(''));
   urlInput.addEventListener('input', () => urlInput.setCustomValidity(''));
+  replaceInput.addEventListener('change', syncResponseEditor);
+  responseInput.addEventListener('input', () => responseInput.setCustomValidity(''));
   editor.addEventListener('submit', (event) => {
     event.preventDefault();
     if (busy || !ready) return;
@@ -212,6 +226,14 @@
     } catch {
       urlInput.setCustomValidity('Введите полный HTTP или HTTPS URL.');
     }
+    responseInput.setCustomValidity('');
+    if (replaceInput.checked) {
+      try {
+        JSON.parse(responseInput.value);
+      } catch {
+        responseInput.setCustomValidity('Введите корректный JSON.');
+      }
+    }
     if (!editor.reportValidity()) return;
     mutate({
       type: 'saveRule',
@@ -220,7 +242,9 @@
         name: nameInput.value.trim(),
         url: url.href,
         method,
-        active: statusInput.checked
+        active: statusInput.checked,
+        replaceResponse: replaceInput.checked,
+        responseBody: responseInput.value
       }
     });
   });

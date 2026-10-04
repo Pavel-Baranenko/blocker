@@ -19,7 +19,22 @@ function validateRule(rule) {
     throw new Error('Only HTTP and HTTPS URLs are supported.');
   }
   url.hash = '';
-  return { id: rule.id, name: rule.name.trim(), url: url.href, method: rule.method, active: rule.active };
+  const replaceResponse = rule.replaceResponse ?? false;
+  const responseBody = rule.responseBody ?? '';
+  if (typeof replaceResponse !== 'boolean' || typeof responseBody !== 'string') {
+    throw new Error('Invalid response settings.');
+  }
+  if (replaceResponse) {
+    try {
+      JSON.parse(responseBody);
+    } catch {
+      throw new Error('Response must contain valid JSON.');
+    }
+  }
+  return {
+    id: rule.id, name: rule.name.trim(), url: url.href, method: rule.method,
+    active: rule.active, replaceResponse, responseBody
+  };
 }
 
 async function getRules() {
@@ -27,12 +42,18 @@ async function getRules() {
   return stored.rules;
 }
 
+function getReplacementRules(rules) {
+  return rules.filter(rule => rule.active && rule.replaceResponse).map(rule => ({
+    url: rule.url, method: rule.method, responseBody: rule.responseBody
+  }));
+}
+
 async function applyRules(rules) {
   const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
   const tabId = tabs[0]?.id;
   const addRules = [];
   if (Number.isInteger(tabId) && tabId >= 0) {
-    for (const rule of rules.filter(rule => rule.active)) {
+    for (const rule of rules.filter(rule => rule.active && !rule.replaceResponse)) {
       const regexFilter = '^' + rule.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$';
       const support = await chrome.declarativeNetRequest.isRegexSupported({
         regex: regexFilter,
@@ -57,11 +78,22 @@ async function applyRules(rules) {
     removeRuleIds: current.map(rule => rule.id),
     addRules
   });
+  const allTabs = await chrome.tabs.query({});
+  const replacements = getReplacementRules(rules);
+  await Promise.all(allTabs.filter(tab => Number.isInteger(tab.id)).map(tab =>
+    chrome.tabs.sendMessage(tab.id, {
+      type: 'setPageRules', rules: tab.id === tabId ? replacements : []
+    }).catch(() => {})
+  ));
 }
 
-async function handleMessage(message) {
+async function handleMessage(message, sender) {
   const rules = await getRules();
   if (message.type === 'getRules') return rules;
+  if (message.type === 'getPageRules') {
+    const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    return sender.tab?.id === tabs[0]?.id ? getReplacementRules(rules) : [];
+  }
   let nextRules;
   if (message.type === 'saveRule') {
     const rule = validateRule(message.rule);
@@ -83,8 +115,9 @@ async function handleMessage(message) {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (sender.id !== chrome.runtime.id || !['getRules', 'saveRule', 'deleteRule'].includes(message?.type)) return;
-  enqueue(() => handleMessage(message)).then(
+  if (sender.id !== chrome.runtime.id || !['getRules', 'getPageRules', 'saveRule', 'deleteRule'].includes(message?.type)) return;
+  if (sender.tab && message.type !== 'getPageRules') return;
+  enqueue(() => handleMessage(message, sender)).then(
     rules => sendResponse({ rules }),
     error => sendResponse({ error: error.message })
   );

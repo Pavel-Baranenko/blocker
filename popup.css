@@ -96,6 +96,7 @@ body {
     width: 35px;
     height: 19px;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .switch input {
@@ -187,6 +188,19 @@ textarea.text-input {
     height: auto;
     resize: vertical;
 }
+
+  .edit__box--response {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #rule-response {
+    max-width: none;
+    min-height: 130px;
+    font-family: Consolas, monospace;
+    line-height: 1.4;
+    tab-size: 2;
+  }
 
 .text-input:hover:not(:focus) {
     border-color: #b3b3b3;

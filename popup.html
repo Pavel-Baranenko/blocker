@@ -85,6 +85,16 @@
                     <label for="rule-url" class="edit__text">URL</label>
                     <textarea id="rule-url" name="rule-url" class="text-input" required></textarea>
                 </div>
+                <div class="edit__box">
+                    <label for="rule-replace-response" class="edit__text">Подменять ответ</label>
+                    <label class="switch">
+                        <input type="checkbox" id="rule-replace-response" name="rule-replace-response" aria-label="Подменять ответ" aria-controls="response-editor">
+                    </label>
+                </div>
+                <div class="edit__box edit__box--response" id="response-editor" hidden>
+                    <label for="rule-response" class="edit__text">JSON</label>
+                    <textarea id="rule-response" name="rule-response" class="text-input" rows="7" spellcheck="false"></textarea>
+                </div>
                 <div class="edit__box edit__box--actions">
                     <button type="button" id="delete-rule" class="btn btn--danger">Удалить</button>
                     <button type="button" id="cancel-edit" class="btn">Отмена</button>

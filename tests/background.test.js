@@ -12,6 +12,7 @@ function createHarness(initialRules = []) {
   const listeners = {};
   const state = {
     rules: structuredClone(initialRules), session: [], tabId: 7,
+    pageMessages: [],
     regexSupported: true, failStorage: false, failUpdate: false
   };
   const event = name => ({ addListener: callback => { listeners[name] = callback; } });
@@ -29,10 +30,12 @@ function createHarness(initialRules = []) {
     },
     tabs: {
       query: async query => {
+        if (!query.active) return [7, 20, 30, 40].map(id => ({ id }));
         assert.equal(query.active, true);
         assert.equal(query.lastFocusedWindow, true);
         return state.tabId === null ? [] : [{ id: state.tabId }];
       },
+      sendMessage: async (tabId, message) => { state.pageMessages.push({ tabId, ...message }); },
       onActivated: event('activated'), onRemoved: event('removed')
     },
     windows: { WINDOW_ID_NONE: -1, onFocusChanged: event('focus') },
@@ -55,7 +58,9 @@ function createHarness(initialRules = []) {
   return {
     state, listeners,
     flush: () => vm.runInContext('pending', context),
-    send: message => new Promise(resolve => listeners.message(message, { id: 'extension' }, resolve))
+    send: (message, tabId) => new Promise(resolve => listeners.message(message, {
+      id: 'extension', ...(tabId === undefined ? {} : { tab: { id: tabId } })
+    }, resolve))
   };
 }
 
@@ -142,4 +147,36 @@ test('serializes concurrent changes without losing another rule', async () => {
   await harness.flush();
   assert.equal(harness.state.rules.length, 2);
   assert.equal(new Set(harness.state.session.map(rule => rule.id)).size, 2);
+});
+
+test('persists JSON replacement without installing a blocking filter', async () => {
+  const harness = createHarness();
+  await harness.flush();
+  const mock = { ...example, replaceResponse: true, responseBody: '{"success":true}' };
+  assert.ok(!(await harness.send({ type: 'saveRule', rule: mock })).error);
+  assert.equal(harness.state.rules[0].responseBody, mock.responseBody);
+  assert.equal(harness.state.rules[0].replaceResponse, true);
+  assert.equal(harness.state.session.length, 0);
+  const invalid = await harness.send({ type: 'saveRule', rule: { ...mock, responseBody: '{invalid}' } });
+  assert.match(invalid.error, /valid JSON/);
+  assert.equal(harness.state.rules[0].responseBody, mock.responseBody);
+  await harness.send({ type: 'saveRule', rule: { ...mock, replaceResponse: false } });
+  assert.equal(harness.state.session.length, 1);
+  assert.equal(harness.state.rules[0].responseBody, mock.responseBody);
+});
+
+test('only the active tab receives replacement rules, including on first page load', async () => {
+  const mock = { ...example, replaceResponse: true, responseBody: '{"success":true}' };
+  const harness = createHarness([mock]);
+  await harness.flush();
+  assert.equal((await harness.send({ type: 'getPageRules' }, 7)).rules.length, 1);
+  assert.equal((await harness.send({ type: 'getPageRules' }, 20)).rules.length, 0);
+  assert.equal(harness.state.pageMessages.find(message => message.tabId === 7).rules.length, 1);
+  assert.equal(harness.state.pageMessages.find(message => message.tabId === 20).rules.length, 0);
+  harness.state.pageMessages = [];
+  harness.state.tabId = 20;
+  harness.listeners.activated();
+  await harness.flush();
+  assert.equal(harness.state.pageMessages.find(message => message.tabId === 7).rules.length, 0);
+  assert.equal(harness.state.pageMessages.find(message => message.tabId === 20).rules.length, 1);
 });

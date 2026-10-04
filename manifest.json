@@ -2,6 +2,7 @@
   "manifest_version": 3,
   "name": "Управление сетевыми запросами",
   "version": "1.0",
+  "minimum_chrome_version": "111",
   "description": "Блокировка и подмена сетевых запросов",
   "permissions": [
     "declarativeNetRequest",
@@ -11,6 +12,21 @@
   "background": {
     "service_worker": "background.js"
   },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["interceptor.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_title": "Управление запросами",
